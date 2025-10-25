@@ -50,3 +50,7 @@ Setiap baris kode adalah bagian dari perjalanan saya untuk terus belajar, berkem
 ---
 
 ✨ *“Build with logic. Design with passion. Deliver with impact.”*
+
+[![Bahasa Teratas](https://github-readme-stats.vercel.app/api/top-langs/?username=diothree&layout=compact&theme=radical)](https://github.com/anuraghazra/github-readme-stats)
+
+[![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=diothree&theme=radical)](https://git.io/streak-stats)
