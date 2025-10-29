@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencatatan Stok Barang</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+</head>
+<body class="bg-gray-100 p-4 sm:p-8">
+
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 shadow-md">
+            <h1 class="text-2xl font-bold text-center">📝 Input Stok Barang</h1>
+        </header>
+        
+        <main class="p-6">
+            
+            <label class="font-semibold text-gray-700 block mb-2">Daftar Barang (Isi Stok dalam Kg):</label>
+            
+            <div id="daftar-input-container" class="mb-5 max-h-96 overflow-y-auto border border-gray-200 rounded-lg">
+                <ul id="daftar-input-barang" class="divide-y divide-gray-200">
+                    </ul>
+            </div>
+            
+            <button id="tombol-update" 
+                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md
+                           transition-all duration-200 ease-in-out
+                           hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Update Semua Stok
+            </button>
+            
+            <div id="status-update" class="mt-4 p-3 text-center rounded-md font-medium" style="display: none;"></div> 
+
+            <hr class="border-gray-200 my-6">
+
+            <button id="tombol-laporan" 
+                    class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-md
+                           transition-all duration-200 ease-in-out
+                           hover:bg-green-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                Tampilkan Laporan Stok
+            </button>
+            
+            <div id="area-laporan" 
+                 class="mt-4 bg-gray-900 text-white text-sm font-mono p-5 
+                        rounded-lg shadow-inner min-h-[100px] whitespace-pre-wrap 
+                        overflow-x-auto">
+                Laporan stok (hanya barang > 0 Kg) akan muncul di sini...
+            </div>
+            
+            <hr class="border-gray-200 my-6">
+
+            <div id="whatsapp-section">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">📤 Buat Struk (WA)</h2>
+                
+                <button id="tombol-buat-struk" 
+                        class="w-full bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg shadow-md
+                               transition-all duration-200 ease-in-out
+                               hover:bg-cyan-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2">
+                    Buat Struk Gambar & Teks
+                </button>
+
+                <div id="hasil-struk-container" class="mt-6" style="display: none;">
+                    
+                    <h3 class="font-semibold text-gray-700">1. Gambar Struk (Siap Kirim):</h3>
+                    <p class="text-sm text-gray-500 mb-2">
+                        Di HP: Tekan & tahan gambar, lalu "Bagikan" atau "Simpan".
+                        Di PC: Klik kanan gambar, "Save image as...".
+                    </p>
+                    
+                    <img id="preview-struk-img" src="" alt="Preview Struk" class="border-2 border-dashed border-gray-400 rounded-lg mt-2 w-full">
+                    
+                    <a id="download-struk-link" 
+                       href="#" 
+                       download="struk_stok.png"
+                       class="block w-full text-center mt-4 bg-gray-800 text-white font-bold py-2 px-4 rounded-lg
+                              hover:bg-gray-900 transition-all duration-200">
+                       Unduh Gambar Struk (PNG)
+                    </a>
+                    
+                    <hr class="border-gray-200 my-4">
+
+                    <label for="caption-wa" class="font-semibold text-gray-700 mt-4 block">2. Teks Caption (untuk disalin):</label>
+                    <textarea id="caption-wa" rows="8" 
+                              class="w-full p-3 mt-2 font-mono text-sm border border-gray-300 rounded-md 
+                                     bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                    
+                    <button id="tombol-salin-teks" 
+                            class="w-full mt-2 bg-gray-600 text-white font-bold py-2 px-4 rounded-lg
+                                   hover:bg-gray-700 transition-all duration-200">
+                        Salin Teks ke Clipboard
+                    </button>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <div style="position: absolute; left: -9999px; top: 0; background-color: #ffffff; padding: 10px;">
+        <div id="struk-template" style="width: 320px; background: white; border: 1px solid #000; padding: 15px; font-family: 'Arial', sans-serif; font-size: 13px; color: #000;">
+            <h3 style="text-align: center; margin: 0 0 10px 0; font-size: 16px; font-weight: bold;">LAPORAN STOK BARANG</h3>
+            <p id="struk-tanggal" style="text-align: center; font-size: 11px; margin: 0 0 10px 0; border-bottom: 1px dashed #555; padding-bottom: 8px;"></p>
+            
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding: 5px; border-bottom: 1px solid #000;">Barang</th>
+                        <th style="text-align: right; padding: 5px; border-bottom: 1px solid #000;">Jumlah (Kg)</th>
+                    </tr>
+                </thead>
+                <tbody id="struk-item-list"></tbody>
+                
+                <tfoot style="border-top: 1px solid #000; font-weight: bold;">
+                    <tr>
+                        <td style="padding: 8px 5px 4px 5px;">Total Item:</td>
+                        <td id="struk-total-item" style="padding: 8px 5px 4px 5px; text-align: right;">0</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 4px 5px;">Total Berat:</td>
+                        <td id="struk-total-kg" style="padding: 4px 5px; text-align: right;">0 Kg</td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <p style="text-align: center; font-size: 11px; margin-top: 15px;">-- Terima Kasih --</p>
+        </div>
+    </div>
+
+
+    <script>
+        // --- 1. Definisi Data ---
+        
+        const daftarNamaBarang = [
+            "Bawang Merah", "Bawang Putih", "Bombay", "Bawang Sumenep", "Jengkol", "Jengkol Cangkang",
+            "Wortel Dus", "Wortel AB", "Wortel PL", "Kentang AB", "Kentang PL", "Kentang AL", "Kentang ABC",
+            "Cengek ORI", "Cengek Japlak", "Keriting Merah", "Keriting Hijau", "Genot", "Cabe Hijau", "Cabe Merah",
+            "Daun Salam", "Sereh", "Daun Jeruk", "Laja", "Jahe", "Cikur", "Kunyit", "Lemon Kalifornia", "Lemon Biasa",
+            "Jeruk Nipis", "Jeruk Purut", "Kol", "Seladah Bokor", "Tomat Merah", "Tomat Hijau", "Bonteng",
+            "Bawang Daun", "Seledri", "Jagong", "Pecay", "Burkol", "Burkoli", "Pakcoy", "Lobak Kecil", "Lobak Daun",
+            "Waluh Baby", "Waluh Daun", "Paria", "Lember", "Lenca", "Kacang Panjang", "Buncis",
+            "Terong Ungu", "Terong Coel", "Oyong"
+        ];
+        
+        let stokBarangKg = {};
+
+        // --- 2. Referensi Elemen HTML ---
+        
+        const daftarInputUl = document.getElementById('daftar-input-barang');
+        const tombolUpdate = document.getElementById('tombol-update');
+        const tombolLaporan = document.getElementById('tombol-laporan');
+        const areaLaporan = document.getElementById('area-laporan');
+        const statusBar = document.getElementById('status-update');
+
+        const tombolBuatStruk = document.getElementById('tombol-buat-struk');
+        const hasilStrukContainer = document.getElementById('hasil-struk-container');
+        const previewStrukImg = document.getElementById('preview-struk-img');
+        const downloadStrukLink = document.getElementById('download-struk-link');
+        const captionWaTextarea = document.getElementById('caption-wa');
+        const tombolSalinTeks = document.getElementById('tombol-salin-teks');
+        
+        const strukTemplate = document.getElementById('struk-template');
+        const strukTanggal = document.getElementById('struk-tanggal');
+        const strukItemList = document.getElementById('struk-item-list');
+        const strukTotalItem = document.getElementById('struk-total-item');
+        const strukTotalKg = document.getElementById('struk-total-kg');
+
+
+        // --- 3. Fungsi Inisialisasi ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            daftarNamaBarang.sort(); 
+            daftarNamaBarang.forEach(namaBarang => {
+                if (namaBarang) { 
+                    stokBarangKg[namaBarang] = 0;
+                    
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center p-4 hover:bg-gray-50';
+                    
+                    const label = document.createElement('label');
+                    const inputId = 'input-' + namaBarang.replace(/ /g, '-'); 
+                    label.htmlFor = inputId;
+                    label.textContent = namaBarang;
+                    label.className = 'font-medium text-gray-800 mr-4';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = inputId;
+                    input.className = 'input-kg w-24 text-right p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none';
+                    input.placeholder = 'Kg';
+                    input.step = '0.1';
+                    input.dataset.namaBarang = namaBarang; 
+                    
+                    li.appendChild(label);
+                    li.appendChild(input);
+                    daftarInputUl.appendChild(li);
+                }
+            });
+            console.log("Sistem Stok Siap.");
+        });
+
+        // --- 4. Fungsi-Fungsi Logika ---
+
+        function updateStok() {
+            const semuaInput = document.querySelectorAll('#daftar-input-barang .input-kg');
+            let itemDiupdate = 0;
+            semuaInput.forEach(input => {
+                const namaBarang = input.dataset.namaBarang;
+                const nilaiInput = input.value;
+                if (nilaiInput !== "") {
+                    const jumlahKg = parseFloat(nilaiInput);
+                    if (!isNaN(jumlahKg) && jumlahKg >= 0) {
+                        stokBarangKg[namaBarang] = jumlahKg;
+                        itemDiupdate++;
+                    }
+                }
+            });
+            tampilkanStatus(`✅ STOK DIPERBARUI: ${itemDiupdate} item telah di-update.`, "sukses");
+            semuaInput.forEach(input => { input.value = ""; });
+        }
+
+        function tampilkanLaporan() {
+            let laporanHTML = "--- LAPORAN STOK GUDANG (Kg) ---\n\n";
+            let totalItem = 0, totalKg = 0, adaStok = false;
+            const namaTersortir = Object.keys(stokBarangKg).sort();
+            namaTersortir.forEach(nama => {
+                const jumlah = stokBarangKg[nama];
+                if (jumlah > 0) {
+                    laporanHTML += `[${nama}]: ${jumlah} Kg\n`;
+                    totalItem++; totalKg += jumlah; adaStok = true;
+                }
+            });
+            if (!adaStok) {
+                laporanHTML += "Belum ada barang yang memiliki stok (semua masih 0 Kg).";
+            } else {
+                laporanHTML += "\n-----------------------------------\n";
+                laporanHTML += `Total Jenis Item (ada stok): ${totalItem}\n`;
+                laporanHTML += `Total Berat Stok (Keseluruhan): ${totalKg.toFixed(2)} Kg`;
+            }
+            areaLaporan.textContent = laporanHTML;
+        }
+
+        function tampilkanStatus(pesan, tipe) {
+            if (tipe === "sukses") {
+                statusBar.className = "mt-4 p-3 text-center rounded-md font-medium bg-green-100 text-green-800";
+            } else {
+                statusBar.className = "mt-4 p-3 text-center rounded-md font-medium bg-red-100 text-red-800";
+            }
+            statusBar.textContent = pesan;
+            statusBar.style.display = "block"; 
+            setTimeout(() => { statusBar.style.display = "none"; }, 3000);
+        }
+
+        function buatStrukGambarDanTeks() {
+            let htmlStruk = "";
+            let textWa = "*LAPORAN STOK BARANG*\n"; 
+            let totalItem = 0;
+            let totalKg = 0;
+            let adaStok = false;
+
+            const namaTersortir = Object.keys(stokBarangKg).sort();
+            const now = new Date();
+            const tanggalStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+            const waktuStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            const tanggalLengkap = `${tanggalStr}, ${waktuStr} WIB`;
+            
+            strukTanggal.textContent = tanggalLengkap;
+            textWa += `_Tanggal: ${tanggalLengkap}_\n\n`; 
+            textWa += "```------------------------------```\n"; 
+
+            namaTersortir.forEach(nama => {
+                const jumlah = stokBarangKg[nama];
+                if (jumlah > 0) {
+                    adaStok = true;
+                    totalItem++;
+                    totalKg += jumlah;
+                    htmlStruk += `
+                        <tr style="font-size: 12px;">
+                            <td style="padding: 3px 5px; vertical-align: top;">${nama}</td>
+                            <td style="padding: 3px 5px; text-align: right; vertical-align: top;">${jumlah}</td>
+                        </tr>
+                    `;
+                    textWa += `[${nama}]: *${jumlah} Kg*\n`;
+                }
+            });
+
+            if (!adaStok) {
+                htmlStruk = `<tr><td colspan="2" style="padding: 10px; text-align: center;">Belum ada stok.</td></tr>`;
+                textWa += "_Belum ada stok (semua 0 Kg)._\n";
+                tampilkanStatus("Tidak ada stok untuk dibuat struk.", "error");
+                return; 
+            }
+
+            strukItemList.innerHTML = htmlStruk;
+            strukTotalItem.textContent = totalItem;
+            strukTotalKg.textContent = `${totalKg.toFixed(2)} Kg`;
+            
+            textWa += "```------------------------------```\n";
+            textWa += `*Total Item:* ${totalItem}\n`;
+            textWa += `*Total Berat:* ${totalKg.toFixed(2)} Kg`;
+            captionWaTextarea.value = textWa;
+
+            tampilkanStatus("Membuat gambar struk...", "sukses");
+            
+            const options = { scale: 2, backgroundColor: '#ffffff' };
+
+            html2canvas(strukTemplate, options).then(canvas => {
+                const imgDataUrl = canvas.toDataURL('image/png');
+                previewStrukImg.src = imgDataUrl; 
+                downloadStrukLink.href = imgDataUrl; 
+                hasilStrukContainer.style.display = 'block';
+                tampilkanStatus("Struk gambar berhasil dibuat!", "sukses");
+                hasilStrukContainer.scrollIntoView({ behavior: 'smooth' });
+            }).catch(err => {
+                console.error("Gagal membuat canvas:", err);
+                tampilkanStatus("Gagal membuat gambar struk.", "error");
+            });
+        }
+
+        function salinTeksKeClipboard() {
+            captionWaTextarea.select(); 
+            try {
+                document.execCommand('copy');
+                tampilkanStatus("Teks berhasil disalin!", "sukses");
+            } catch (err) {
+                tampilkanStatus("Gagal menyalin teks.", "error");
+            }
+        }
+        
+        // --- 5. Menghubungkan Tombol ke Fungsi ---
+        
+        tombolUpdate.addEventListener('click', updateStok);
+        tombolLaporan.addEventListener('click', tampilkanLaporan);
+        tombolBuatStruk.addEventListener('click', buatStrukGambarDanTeks);
+        tombolSalinTeks.addEventListener('click', salinTeksKeClipboard);
+        
+    </script>
+
+</body>
+</html>
