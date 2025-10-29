@@ -26,8 +26,4 @@ Ini adalah repository untuk proyek **Dio Trimartin**, sebuah website pribadi yan
    git clone https://github.com/diothree/Dio.git
    cd dio
    ```
-
-```
-📢 **Dio Portfolio** | Dibuat dengan ❤️ oleh [Dio Trimartin](https://diothrre.github.io/portfolio2/).
-
 ```
