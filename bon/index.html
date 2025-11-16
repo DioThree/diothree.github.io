@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Bon dari WA</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        h2, h3 {
+            color: #0056b3;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+        textarea {
+            width: 98%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .tombol-cetak {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+        .tombol-cetak:hover {
+            background-color: #218838;
+        }
+        #outputBon {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        tfoot td {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+        #customerName {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #d9534f;
+            margin-bottom: 10px;
+        }
+        .editable {
+            background-color: #fffde7;
+            font-weight: bold;
+        }
+        
+        /* BARU: Sembunyikan header cetak di layar */
+        .print-header {
+            display: none;
+        }
+
+        /* ------------------------------------------- */
+        /* ATURAN CETAK (PRINT) - DITINGKATKAN */
+        /* ------------------------------------------- */
+        @media print {
+            /* Gunakan font yang bersih untuk cetak */
+            body {
+                font-family: 'Arial', sans-serif;
+                font-size: 12pt;
+            }
+            
+            /* Sembunyikan semua elemen di body */
+            body > * {
+                display: none;
+            }
+            
+            /* Tampilkan HANYA .container */
+            .container {
+                display: block;
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            
+            /* Sembunyikan elemen UI di dalam .container */
+            .container h2, 
+            .container h3, 
+            .container #inputWA, 
+            .container button {
+                display: none;
+            }
+            
+            /* Tampilkan HANYA area bon */
+            #outputBon {
+                display: block;
+                margin-top: 0;
+            }
+            
+            /* BARU: Tampilkan dan tata header cetak */
+            .print-header {
+                display: block;
+                text-align: center;
+                margin-bottom: 25px;
+                border-bottom: 2px solid #000;
+                padding-bottom: 15px;
+            }
+            .print-header h2 {
+                display: block; /* Tampilkan h2 di dalam print-header */
+                font-size: 18pt;
+                margin: 0 0 5px 0;
+                color: #000 !important;
+            }
+            .print-header p {
+                display: block; /* Tampilkan p di dalam print-header */
+                margin: 0;
+                font-size: 10pt;
+                color: #000 !important;
+            }
+            
+            /* Tata nama pelanggan untuk cetak */
+            #customerName {
+                display: block; /* Pastikan tampil */
+                color: #000 !important;
+                font-size: 14pt;
+                margin-bottom: 15px;
+            }
+            
+            table {
+                width: 100%;
+            }
+            th, td {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                padding: 8px;
+            }
+            
+            /* Buat Total lebih menonjol */
+            tfoot td {
+                background-color: #fff !important;
+                font-size: 13pt;
+            }
+            /* Sel total (paling kanan) */
+            tfoot td:last-child {
+                font-weight: bold;
+            }
+            
+            .editable {
+                background-color: #fff !important; 
+            }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Generator Bon dari WhatsApp</h2>
+        
+        <h3>1. Tempel (Paste) Teks dari WA</h3>
+        <textarea id="inputWA" placeholder="Tempel teks dari WA di sini..."></textarea>
+        
+        <button onclick="prosesBon()">Proses Menjadi Bon</button>
+        <button class="tombol-cetak" onclick="cetakBon()">Cetak Bon</button>
+        
+        <h3>2. Hasil Bon (Bisa Diedit)</h3>
+        <div id="outputBon">
+            <p>Hasil bon akan ditampilkan di sini...</p>
+        </div>
+    </div>
+
+    <script>
+        function prosesBon() {
+            // Ambil tanggal hari ini
+            const today = new Date();
+            // Format tanggalnya (misal: 16 November 2025)
+            const options = { day: '2-digit', month: 'long', year: 'numeric' };
+            const formattedDate = today.toLocaleDateString('id-ID', options);
+            
+            const inputText = document.getElementById('inputWA').value;
+            const lines = inputText.split('\n');
+            
+            let customerName = ''; 
+            let items = []; 
+
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (trimmedLine === '') return;
+                
+                if (trimmedLine.includes(',')) {
+                    const parts = trimmedLine.split(',');
+                    if (parts.length >= 2) {
+                        const itemName = parts[0].trim();
+                        const quantity = parts[1].trim();
+                        items.push({ name: itemName, qty: quantity });
+                    }
+                } else {
+                    customerName = trimmedLine;
+                }
+            });
+            
+            // Mulai outputHTML
+            let outputHTML = '';
+            
+            // BARU: Tambahkan header bon (yang tersembunyi di layar)
+            // Ganti "Toko Sayur Anda" dengan nama toko Anda
+            outputHTML += `
+                <div class="print-header">
+                    <h2>NOTA PESANAN</h2>
+                    <p><strong>Gudang Sayurr</strong><br>
+                       Jl. Pasar Sehat Sabilulungan Cicalengka<br>
+                       Telp: 0853-1582-8729
+                    </p>
+                    <p>Tanggal: ${formattedDate}</p>
+                </div>
+            `;
+            
+            // Tambahkan nama pelanggan
+            if (customerName) {
+                outputHTML += `<div id="customerName">Pelanggan: ${customerName}</div>`;
+            }
+            
+            // Buat tabel (SAMA SEPERTI SEBELUMNYA)
+            if (items.length > 0) {
+                outputHTML += `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Jumlah Pesan</th>
+                                <th>Harga</th>
+                                <th>Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                items.forEach(item => {
+                    outputHTML += `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.qty}</td>
+                            <td class="editable" contenteditable="true"></td>
+                            <td class="editable" contenteditable="true"></td>
+                        </tr>
+                    `;
+                });
+                
+                outputHTML += `
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" style="text-align: right; font-weight: bold;">Total Keseluruhan (Rp)</td>
+                                <td class="editable" contenteditable="true"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                `;
+            } else {
+                outputHTML += '<p>Tidak ada item pesanan yang ditemukan.</p>';
+            }
+            
+            document.getElementById('outputBon').innerHTML = outputHTML;
+        }
+        
+        function cetakBon() {
+            window.print();
+        }
+    </script> 
+
+</body>
+</html>
